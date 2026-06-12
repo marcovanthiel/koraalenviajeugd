@@ -9,7 +9,7 @@
 <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v=2" color="#00a7e7">
 <link rel="shortcut icon" href="/favicon/favicon.ico?v=2">
 <title>Eén organisatie, twee verhalen · Cultuurmeting Koraal &amp; Via Jeugd</title>
-<link rel="stylesheet" href="/assets/stijl.css?v=4">
+<link rel="stylesheet" href="/assets/stijl.css?v=5">
 </head>
 <body>
 <div class="wrap lees">
@@ -252,8 +252,7 @@
       <strong>Stuur de link door</strong> aan collega's die de meting nog
       niet invulden: hoe meer mensen meedoen, hoe betrouwbaarder het beeld.
       <div class="kopieer-rij">
-        <button class="kopieer-knop" id="kopieer-knop" type="button"
-                onclick="kopieerLink()">
+        <button class="kopieer-knop" id="kopieer-knop" type="button">
           <span id="kopieer-label">Kopieer de link</span>
         </button>
         <code class="kopieer-url" id="kopieer-url">https://koraalenviajeugd.nl/</code>
@@ -266,33 +265,10 @@
   </p>
 </section>
 
-<a class="terug" href="javascript:history.back()">← terug naar mijn uitslag</a>
+<a class="terug" href="../" id="terug">← terug naar mijn uitslag</a>
 
 </div>
 
-<script>
-'use strict';
-async function kopieerLink() {
-  const url = document.getElementById('kopieer-url').textContent.trim();
-  const knop  = document.getElementById('kopieer-knop');
-  const label = document.getElementById('kopieer-label');
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(url);
-    } else {
-      // Fallback: tijdelijk textarea
-      const ta = document.createElement('textarea');
-      ta.value = url; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-    }
-    label.textContent = '✓ Gekopieerd!';
-    knop.disabled = true;
-    setTimeout(function(){ label.textContent = 'Kopieer de link'; knop.disabled = false; }, 2400);
-  } catch (e) {
-    label.textContent = 'Kopiëren niet gelukt';
-    setTimeout(function(){ label.textContent = 'Kopieer de link'; }, 2400);
-  }
-}
-</script>
+<script src="/assets/js/uitleg.js?v=1" defer></script>
 </body>
 </html>

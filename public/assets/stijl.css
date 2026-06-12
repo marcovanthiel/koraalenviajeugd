@@ -80,6 +80,9 @@ h3{color:var(--blauw); font-size:1.06em; font-weight:700; margin:20px 0 5px;}
 .knop.grijs{background:#7c8a99; box-shadow:none;}
 .knop.grijs:hover{background:#5b6b7d;}
 .knop.klein{padding:9px 18px; font-size:.95em; border-radius:10px;}
+.knop.rood{background:#c0392b; padding:6px 12px; font-size:.86em; border-radius:8px;}
+.knop.rood:hover:not(:disabled){background:#962a1f;}
+.knop.rood:disabled{background:#d8a59e;}
 .acties{display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 6px;}
 
 /* ---- inputs ---- */

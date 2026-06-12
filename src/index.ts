@@ -5,10 +5,15 @@ import { handleAdminExport } from './handlers/admin-export';
 import { handleAdminDelete } from './handlers/admin-delete';
 import { withSecurityHeaders } from './security';
 
+export interface RateLimit {
+  limit(opts: { key: string }): Promise<{ success: boolean }>;
+}
+
 export interface Env {
   OCAI_DB: D1Database;
   OCAI_ADMIN_TOKEN: string;
   ASSETS: Fetcher;
+  OPSLAAN_RL: RateLimit;
 }
 
 async function route(request: Request, env: Env): Promise<Response> {

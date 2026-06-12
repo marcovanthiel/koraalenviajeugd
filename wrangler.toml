@@ -19,3 +19,12 @@ enabled = true
 binding = "OCAI_DB"
 database_name = "ocai"
 database_id = "4877440a-449f-4e87-a04e-a1c0b7c5ca02"
+
+# Rate-limit /api/opslaan: 30 POSTs per 60s per Cloudflare-edge-IP.
+# Ruim genoeg voor een bijeenkomst van 100 medewerkers achter één NAT,
+# strak genoeg om script-spam af te knijpen.
+[[unsafe.bindings]]
+name = "OPSLAAN_RL"
+type = "ratelimit"
+namespace_id = "1"
+simple = { limit = 30, period = 60 }

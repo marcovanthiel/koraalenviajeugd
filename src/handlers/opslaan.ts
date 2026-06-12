@@ -65,6 +65,20 @@ export async function handleOpslaan(request: Request, env: Env): Promise<Respons
       return json({ ok: false, fout: 'Database is niet geconfigureerd.' }, 503);
     }
 
+    const ip =
+      request.headers.get('cf-connecting-ip') ??
+      request.headers.get('x-forwarded-for') ??
+      '0.0.0.0';
+    if (env.OPSLAAN_RL) {
+      const rl = await env.OPSLAAN_RL.limit({ key: ip });
+      if (!rl.success) {
+        return json(
+          { ok: false, fout: 'Te veel verzoeken — probeer over een minuut opnieuw.' },
+          429,
+        );
+      }
+    }
+
     let body: Payload;
     try {
       body = (await request.json()) as Payload;
@@ -107,10 +121,6 @@ export async function handleOpslaan(request: Request, env: Env): Promise<Respons
 
     const profiel = profielGemiddeld(dims);
     const ref = 'O-' + crypto.randomUUID().replace(/-/g, '').toUpperCase().slice(0, 8);
-    const ip =
-      request.headers.get('cf-connecting-ip') ??
-      request.headers.get('x-forwarded-for') ??
-      null;
 
     await env.OCAI_DB.prepare(
       `INSERT INTO inzendingen (
