@@ -1,6 +1,13 @@
 name = "koraalenviajeugd"
+main = "src/index.ts"
 compatibility_date = "2026-06-12"
-pages_build_output_dir = "./public"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[observability]
+enabled = true
 
 [[d1_databases]]
 binding = "OCAI_DB"

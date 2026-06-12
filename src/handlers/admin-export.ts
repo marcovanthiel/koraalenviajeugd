@@ -1,18 +1,4 @@
-/**
- * Cloudflare Pages Function — GET /api/admin/export
- *
- * Geeft een CSV terug met alle OCAI-inzendingen, geschikt voor Excel
- * (UTF-8 BOM + ;-separator). Token-auth identiek aan /admin/list.
- *
- * Bindings/secrets:
- *   - D1 binding:        OCAI_DB
- *   - env var (secret):  OCAI_ADMIN_TOKEN
- */
-
-interface Env {
-  OCAI_DB: D1Database;
-  OCAI_ADMIN_TOKEN: string;
-}
+import type { Env } from '../index';
 
 interface Row {
   ref: string;
@@ -51,7 +37,7 @@ function csv(v: unknown): string {
   return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+export async function handleAdminExport(request: Request, env: Env): Promise<Response> {
   try {
     if (!env.OCAI_DB) {
       return new Response('Database is niet geconfigureerd.', { status: 503 });
@@ -67,7 +53,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
               gewenst_a, gewenst_b, gewenst_c, gewenst_d,
               created_at
          FROM inzendingen
-        ORDER BY id ASC`
+        ORDER BY id ASC`,
     ).all<Row>();
 
     const header = [
@@ -100,10 +86,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
           r.gewenst_d,
         ]
           .map(csv)
-          .join(';')
+          .join(';'),
       );
     }
-    // UTF-8 BOM voor Excel
     const body = '﻿' + lines.join('\r\n') + '\r\n';
 
     return new Response(body, {
@@ -119,4 +104,4 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     console.error('admin/export crashed:', msg);
     return new Response(`Server-fout: ${msg}`, { status: 500 });
   }
-};
+}

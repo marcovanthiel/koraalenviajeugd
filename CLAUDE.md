@@ -11,11 +11,12 @@ Gedeelde bron-van-waarheid tussen claude.ai-chats en Claude Code-sessies voor de
 
 ## Architectuur
 
-- **Cloudflare Pages** statische site (`public/`) + **Pages Functions** (TypeScript, `functions/api/`).
+- **Cloudflare Worker + Static Assets**: statische site (`public/`) wordt door de `ASSETS`-binding geserveerd; één Worker-entrypoint (`src/index.ts`) routeert `/api/*` naar handler-modules in `src/handlers/`.
 - **D1** voor opslag (sqlite-edge); binding `OCAI_DB` → database `ocai`.
 - **Admin-token** in `sessionStorage` + bearer in `Authorization`-header.
+- Cloudflare faseerde de Pages-creation flow uit medio 2026; vandaar de Workers + Static Assets route. Marcovanthiel-static draait nog op het oude Pages-model.
 
-### Pages
+### Pagina's (statisch, in `public/`)
 
 | Pad | Bestand | Wie ziet het |
 |---|---|---|
@@ -25,15 +26,17 @@ Gedeelde bron-van-waarheid tussen claude.ai-chats en Claude Code-sessies voor de
 | `/admin/` | `public/admin/index.html` | token-login; tellers, lijst, CSV |
 | `/admin/totaal/` | `public/admin/totaal/index.html` | token-vereist; stippenplaat + per-org vliegers |
 
-### Endpoints
+### Endpoints (Worker, `src/handlers/`)
 
-| Method + pad | File | Auth |
+| Method + pad | Handler | Auth |
 |---|---|---|
-| POST `/api/opslaan` | `functions/api/opslaan.ts` | publiek |
-| GET `/api/resultaat?ref=…` | `functions/api/resultaat.ts` | publiek (ref onraadbaar) |
-| GET `/api/resultaat?summary=1&token=…` | `functions/api/resultaat.ts` | admin-token |
-| GET `/api/admin/list` | `functions/api/admin/list.ts` | admin-token |
-| GET `/api/admin/export` | `functions/api/admin/export.ts` | admin-token; CSV (UTF-8 BOM, `;`) |
+| POST `/api/opslaan` | `handleOpslaan` (`opslaan.ts`) | publiek |
+| GET `/api/resultaat?ref=…` | `handleResultaat` (`resultaat.ts`) | publiek (ref onraadbaar) |
+| GET `/api/resultaat?summary=1&token=…` | `handleResultaat` (`resultaat.ts`) | admin-token |
+| GET `/api/admin/list` | `handleAdminList` (`admin-list.ts`) | admin-token |
+| GET `/api/admin/export` | `handleAdminExport` (`admin-export.ts`) | admin-token; CSV (UTF-8 BOM, `;`) |
+
+Routing zit in `src/index.ts`: pad-match → handler; anders `env.ASSETS.fetch(request)` als fallback.
 
 ## Grafiek-conventie (variant B, definitief)
 
@@ -68,7 +71,7 @@ Gedeelde bron-van-waarheid tussen claude.ai-chats en Claude Code-sessies voor de
 ## Migratiehistorie
 
 - **Tot 12 juni 2026**: subpad `/koraalenviajeugd/` binnen `marcovanthiel/marcovanthiel-static` (Hugo-zustersite). Endpoints onder `/api/koraalenviajeugd/`.
-- **Vanaf 12 juni 2026**: standalone domein `koraalenviajeugd.nl` in eigen repo `marcovanthiel/koraalenviajeugd`. Endpoints onder `/api/`. Zelfde D1-database (binding `OCAI_DB` → `ocai`) hergebruikt.
+- **Vanaf 12 juni 2026**: standalone domein `koraalenviajeugd.nl` in eigen repo `marcovanthiel/koraalenviajeugd`, opgezet als Worker + Static Assets (Cloudflare heeft Pages-creation flow gepensioneerd voor nieuwe projecten). 4 Pages Functions → 1 Worker-entrypoint met simpele path-routing. Endpoints onder `/api/`. Zelfde D1-database (binding `OCAI_DB` → `ocai`) hergebruikt.
 
 ## Gedeelde context (claude.ai ↔ Claude Code)
 

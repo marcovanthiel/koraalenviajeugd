@@ -1,20 +1,4 @@
-/**
- * Cloudflare Pages Function — GET /api/admin/list
- *
- * Geeft alle inzendingen + aggregaten per organisatie terug voor de
- * admin-pagina. Token-auth via Authorization: Bearer <OCAI_ADMIN_TOKEN>
- * of via ?token=… query (zodat de admin-UI 'm in de URL-hash kan opslaan
- * net als bij klank).
- *
- * Bindings/secrets in Cloudflare Pages:
- *   - D1 binding:        OCAI_DB
- *   - env var (secret):  OCAI_ADMIN_TOKEN
- */
-
-interface Env {
-  OCAI_DB: D1Database;
-  OCAI_ADMIN_TOKEN: string;
-}
+import type { Env } from '../index';
 
 type Letter = 'A' | 'B' | 'C' | 'D';
 type LetterScore = Record<Letter, number>;
@@ -70,12 +54,12 @@ function gemiddeld(rs: Item[], ronde: 'nu' | 'gewenst'): LetterScore | null {
   return g;
 }
 
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+export async function handleAdminList(request: Request, env: Env): Promise<Response> {
   try {
     if (!env.OCAI_DB) {
       return new Response(
         JSON.stringify({ ok: false, fout: 'Database is niet geconfigureerd.' }),
-        { status: 503, headers: { 'content-type': 'application/json; charset=utf-8' } }
+        { status: 503, headers: { 'content-type': 'application/json; charset=utf-8' } },
       );
     }
     const token = getToken(request);
@@ -89,7 +73,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
               gewenst_a, gewenst_b, gewenst_c, gewenst_d,
               created_at
          FROM inzendingen
-        ORDER BY id DESC`
+        ORDER BY id DESC`,
     ).all<Row>();
 
     const items: Item[] = (result.results ?? []).map((r) => ({
@@ -100,12 +84,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       team: r.team,
       profiel: {
         nu: { A: r.nu_a, B: r.nu_b, C: r.nu_c, D: r.nu_d },
-        gewenst: {
-          A: r.gewenst_a,
-          B: r.gewenst_b,
-          C: r.gewenst_c,
-          D: r.gewenst_d,
-        },
+        gewenst: { A: r.gewenst_a, B: r.gewenst_b, C: r.gewenst_c, D: r.gewenst_d },
       },
     }));
 
@@ -139,9 +118,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('admin/list crashed:', msg);
-    return new Response(
-      JSON.stringify({ ok: false, fout: `Server-fout: ${msg}` }),
-      { status: 500, headers: { 'content-type': 'application/json; charset=utf-8' } }
-    );
+    return new Response(JSON.stringify({ ok: false, fout: `Server-fout: ${msg}` }), {
+      status: 500,
+      headers: { 'content-type': 'application/json; charset=utf-8' },
+    });
   }
-};
+}

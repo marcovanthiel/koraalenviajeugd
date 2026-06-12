@@ -1,23 +1,4 @@
-/**
- * Cloudflare Pages Function — GET /api/resultaat
- *
- * Twee modes:
- *   ?ref=O-XXXX           → publiek; geeft één inzending terug op basis
- *                          van zijn ref. Geen auth — de ref zelf is
- *                          onraadbaar (random) en de inzending bevat geen
- *                          persoonsgegevens.
- *   ?summary=1&token=…    → admin-only; geeft de gemiddelden per organisatie
- *                          (Koraal/Via Jeugd) terug voor de totaal-pagina.
- *
- * Bindings/secrets in Cloudflare Pages:
- *   - D1 binding:        OCAI_DB
- *   - env var (secret):  OCAI_ADMIN_TOKEN  (alleen voor summary-mode)
- */
-
-interface Env {
-  OCAI_DB: D1Database;
-  OCAI_ADMIN_TOKEN: string;
-}
+import type { Env } from '../index';
 
 type Letter = 'A' | 'B' | 'C' | 'D';
 type LetterScore = Record<Letter, number>;
@@ -64,12 +45,7 @@ function rowToItem(r: Row): Item {
     team: r.team,
     profiel: {
       nu: { A: r.nu_a, B: r.nu_b, C: r.nu_c, D: r.nu_d },
-      gewenst: {
-        A: r.gewenst_a,
-        B: r.gewenst_b,
-        C: r.gewenst_c,
-        D: r.gewenst_d,
-      },
+      gewenst: { A: r.gewenst_a, B: r.gewenst_b, C: r.gewenst_c, D: r.gewenst_d },
     },
   };
 }
@@ -89,14 +65,13 @@ function getToken(request: Request): string | null {
   return url.searchParams.get('token');
 }
 
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+export async function handleResultaat(request: Request, env: Env): Promise<Response> {
   try {
     if (!env.OCAI_DB) {
       return json({ ok: false, fout: 'Database is niet geconfigureerd.' }, 503);
     }
     const url = new URL(request.url);
 
-    // ---------- summary mode (admin) ----------
     if (url.searchParams.has('summary')) {
       const token = getToken(request);
       if (!token || !env.OCAI_ADMIN_TOKEN || token !== env.OCAI_ADMIN_TOKEN) {
@@ -107,7 +82,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
                 nu_a, nu_b, nu_c, nu_d,
                 gewenst_a, gewenst_b, gewenst_c, gewenst_d,
                 created_at
-           FROM inzendingen ORDER BY id ASC`
+           FROM inzendingen ORDER BY id ASC`,
       ).all<Row>();
       const items = (result.results ?? []).map(rowToItem);
       const koraal = items.filter((i) => i.organisatie === 'Koraal');
@@ -128,7 +103,6 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       });
     }
 
-    // ---------- single-result mode (publiek, met ref) ----------
     const ref = url.searchParams.get('ref');
     if (!ref || !/^O-[0-9A-F]{4,16}$/.test(ref)) {
       return json({ ok: false, fout: 'Geen geldige referentie.' }, 400);
@@ -138,7 +112,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
               nu_a, nu_b, nu_c, nu_d,
               gewenst_a, gewenst_b, gewenst_c, gewenst_d,
               created_at
-         FROM inzendingen WHERE ref = ? LIMIT 1`
+         FROM inzendingen WHERE ref = ? LIMIT 1`,
     )
       .bind(ref)
       .first<Row>();
@@ -151,4 +125,4 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     console.error('resultaat crashed:', msg);
     return json({ ok: false, fout: `Server-fout: ${msg}` }, 500);
   }
-};
+}
