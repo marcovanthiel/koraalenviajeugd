@@ -2,6 +2,7 @@ import { handleOpslaan } from './handlers/opslaan';
 import { handleResultaat } from './handlers/resultaat';
 import { handleAdminList } from './handlers/admin-list';
 import { handleAdminExport } from './handlers/admin-export';
+import { handleAdminDelete } from './handlers/admin-delete';
 
 export interface Env {
   OCAI_DB: D1Database;
@@ -32,6 +33,9 @@ export default {
     }
     if (path === '/api/admin/export' && method === 'GET') {
       return handleAdminExport(request, env);
+    }
+    if (path === '/api/admin/delete' && method === 'DELETE') {
+      return handleAdminDelete(request, env);
     }
 
     return env.ASSETS.fetch(request);

@@ -11,6 +11,11 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Beheer · Cultuurmeting Koraal &amp; Via Jeugd</title>
 <link rel="stylesheet" href="/assets/stijl.css?v=4">
+<style>
+  .knop.rood{background:#c0392b; padding:6px 12px; font-size:.86em; border-radius:8px;}
+  .knop.rood:hover:not(:disabled){background:#962a1f;}
+  .knop.rood:disabled{background:#d8a59e;}
+</style>
 </head>
 <body>
 <div class="wrap breed">
@@ -75,7 +80,8 @@
       <thead>
         <tr><th class="l">Datum</th><th class="l">Organisatie</th><th class="l">Team</th>
             <th>Nu F</th><th>Nu A</th><th>Nu M</th><th>Nu H</th>
-            <th>Gew. F</th><th>Gew. A</th><th>Gew. M</th><th>Gew. H</th></tr>
+            <th>Gew. F</th><th>Gew. A</th><th>Gew. M</th><th>Gew. H</th>
+            <th></th></tr>
       </thead>
       <tbody id="inz-body"></tbody>
     </table>
@@ -191,10 +197,18 @@ function render(data, token){
         <td class="l">${esc(r.organisatie)}</td>
         <td class="l">${esc(r.team)}</td>
         <td>${n.A}</td><td>${n.B}</td><td>${n.C}</td><td>${n.D}</td>
-        <td>${g.A}</td><td>${g.B}</td><td>${g.C}</td><td>${g.D}</td></tr>`);
+        <td>${g.A}</td><td>${g.B}</td><td>${g.C}</td><td>${g.D}</td>
+        <td><button class="knop rood" type="button" data-ref="${esc(r.ref)}" title="Verwijder deze inzending">Verwijderen</button></td></tr>`);
   }
-  // Click-handler delegatie.
+  // Click-handler delegatie: verwijder-knop heeft voorrang op rij-klik.
   inzBody.onclick = function(ev){
+    const delBtn = ev.target.closest('button[data-ref]');
+    if (delBtn) {
+      ev.stopPropagation();
+      const ref = delBtn.getAttribute('data-ref') || '';
+      verwijder(ref, delBtn, token);
+      return;
+    }
     const tr = ev.target.closest('tr.klikbaar');
     if (!tr) return;
     const url = tr.getAttribute('data-url');
@@ -221,6 +235,35 @@ function render(data, token){
   document.getElementById('download').onclick = function(){
     window.location.href = '/api/admin/export?token=' + encodeURIComponent(token);
   };
+}
+
+async function verwijder(ref, btn, token){
+  if (!ref) return;
+  if (!confirm('Weet je zeker dat je deze inzending wilt verwijderen?\n\nReferentie: ' + ref + '\n\nDeze actie is niet ongedaan te maken.')) return;
+  btn.disabled = true;
+  btn.textContent = 'Bezig…';
+  try {
+    const res = await fetch('/api/admin/delete?ref=' + encodeURIComponent(ref), {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (res.status === 401) {
+      uitloggen();
+      return;
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      alert(data.fout || 'Verwijderen mislukt (status ' + res.status + ').');
+      btn.disabled = false;
+      btn.textContent = 'Verwijderen';
+      return;
+    }
+    laad(token);
+  } catch (err) {
+    alert('Verwijderen mislukt: ' + (err && err.message ? err.message : err));
+    btn.disabled = false;
+    btn.textContent = 'Verwijderen';
+  }
 }
 
 document.getElementById('login-form').addEventListener('submit', function(ev){
