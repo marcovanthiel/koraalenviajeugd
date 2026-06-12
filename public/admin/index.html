@@ -231,9 +231,30 @@ function render(data, token){
   document.getElementById('grafiek').innerHTML =
     vlieger(reeks, 680); // viewBox-breedte; CSS schaalt 'm naar de container
 
-  // CSV-knop
-  document.getElementById('download').onclick = function(){
-    window.location.href = '/api/admin/export?token=' + encodeURIComponent(token);
+  // CSV-knop: token via Authorization-header (niet in URL) + Blob-download
+  const dl = document.getElementById('download');
+  dl.onclick = async function(){
+    dl.disabled = true;
+    try {
+      const res = await fetch('/api/admin/export', {
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      if (res.status === 401) { uitloggen(); return; }
+      if (!res.ok) { alert('Export mislukt: ' + res.status); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ocai_resultaten.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Export mislukt: ' + (err && err.message ? err.message : err));
+    } finally {
+      dl.disabled = false;
+    }
   };
 }
 

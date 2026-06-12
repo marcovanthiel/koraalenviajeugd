@@ -1,4 +1,5 @@
 import type { Env } from '../index';
+import { tokenEquals } from '../security';
 
 interface Row {
   ref: string;
@@ -43,7 +44,7 @@ export async function handleAdminExport(request: Request, env: Env): Promise<Res
       return new Response('Database is niet geconfigureerd.', { status: 503 });
     }
     const token = getToken(request);
-    if (!token || !env.OCAI_ADMIN_TOKEN || token !== env.OCAI_ADMIN_TOKEN) {
+    if (!token || !env.OCAI_ADMIN_TOKEN || !tokenEquals(token, env.OCAI_ADMIN_TOKEN)) {
       return unauthorized();
     }
 

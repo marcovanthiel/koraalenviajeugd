@@ -1,4 +1,5 @@
 import type { Env } from '../index';
+import { tokenEquals } from '../security';
 
 type Letter = 'A' | 'B' | 'C' | 'D';
 type LetterScore = Record<Letter, number>;
@@ -74,7 +75,7 @@ export async function handleResultaat(request: Request, env: Env): Promise<Respo
 
     if (url.searchParams.has('summary')) {
       const token = getToken(request);
-      if (!token || !env.OCAI_ADMIN_TOKEN || token !== env.OCAI_ADMIN_TOKEN) {
+      if (!token || !env.OCAI_ADMIN_TOKEN || !tokenEquals(token, env.OCAI_ADMIN_TOKEN)) {
         return json({ ok: false, fout: 'Niet ingelogd.' }, 401);
       }
       const result = await env.OCAI_DB.prepare(

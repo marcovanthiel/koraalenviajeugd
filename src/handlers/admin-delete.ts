@@ -1,9 +1,13 @@
 import type { Env } from '../index';
+import { tokenEquals } from '../security';
 
 function json(body: Record<string, unknown>, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'private, no-store',
+    },
   });
 }
 
@@ -20,7 +24,7 @@ export async function handleAdminDelete(request: Request, env: Env): Promise<Res
       return json({ ok: false, fout: 'Database is niet geconfigureerd.' }, 503);
     }
     const token = getToken(request);
-    if (!token || !env.OCAI_ADMIN_TOKEN || token !== env.OCAI_ADMIN_TOKEN) {
+    if (!token || !env.OCAI_ADMIN_TOKEN || !tokenEquals(token, env.OCAI_ADMIN_TOKEN)) {
       return json({ ok: false, fout: 'Niet ingelogd.' }, 401);
     }
 

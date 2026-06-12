@@ -1,4 +1,5 @@
 import type { Env } from '../index';
+import { tokenEquals } from '../security';
 
 type Letter = 'A' | 'B' | 'C' | 'D';
 type LetterScore = Record<Letter, number>;
@@ -63,7 +64,7 @@ export async function handleAdminList(request: Request, env: Env): Promise<Respo
       );
     }
     const token = getToken(request);
-    if (!token || !env.OCAI_ADMIN_TOKEN || token !== env.OCAI_ADMIN_TOKEN) {
+    if (!token || !env.OCAI_ADMIN_TOKEN || !tokenEquals(token, env.OCAI_ADMIN_TOKEN)) {
       return unauthorized();
     }
 
