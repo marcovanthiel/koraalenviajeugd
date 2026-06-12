@@ -1,0 +1,8 @@
+name = "koraalenviajeugd"
+compatibility_date = "2026-06-12"
+pages_build_output_dir = "./public"
+
+[[d1_databases]]
+binding = "OCAI_DB"
+database_name = "ocai"
+database_id = "4877440a-449f-4e87-a04e-a1c0b7c5ca02"

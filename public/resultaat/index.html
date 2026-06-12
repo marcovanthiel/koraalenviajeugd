@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v=2">
+<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v=2" color="#00a7e7">
+<link rel="shortcut icon" href="/favicon/favicon.ico?v=2">
+<meta name="robots" content="noindex, nofollow">
+<title>Mijn uitslag · Cultuurmeting Koraal &amp; Via Jeugd</title>
+<link rel="stylesheet" href="/assets/stijl.css?v=4">
+</head>
+<body>
+<div class="wrap breed">
+
+<div class="hero">
+  <div class="logos">
+    <span><img src="../koraal_logo.png" alt="Koraal"></span>
+    <span><img src="../vj_logo_ok.png" alt="Via Jeugd"></span>
+  </div>
+  <h1>Jouw uitslag</h1>
+  <p class="sub">Waar plaatst jouw invulling de organisatiecultuur &ndash; nu en gewenst?</p>
+</div>
+<p class="meta" id="meta">Even laden…</p>
+
+<div id="leeg" class="kaart" style="display:none;">
+  <p class="fout" id="leeg-msg">Resultaat niet gevonden.</p>
+  <p><a class="knop lijn" href="../">Terug naar de vragenlijst</a></p>
+</div>
+
+<div id="inhoud" style="display:none;">
+  <p>
+    Hieronder zie je waar je eigen invulling de organisatiecultuur plaatst —
+    zowel zoals je die <strong>nu</strong> beleeft (doorgetrokken lijn) als zoals
+    je die <strong>gewenst</strong> ziet binnen ongeveer twee jaar (gestippelde
+    lijn). De vorm van de vlieger laat zien op welke cultuurtypes het
+    zwaartepunt ligt, en het verschil tussen beide lijnen toont welke kant
+    je op zou willen.
+  </p>
+
+  <div class="legend">
+    <span class="item"><span class="sw" id="sw-nu" style="border-radius:0;height:4px;border:none;"></span> jouw beleving — <em>nu</em></span>
+    <span class="item"><span class="sw gewenst" id="sw-gewenst" style="border-radius:0;height:4px;border:none;background:repeating-linear-gradient(90deg,transparent 0 5px,#004289 5px 11px);"></span> jouw beleving — <em>gewenst</em></span>
+  </div>
+
+  <div class="diagram"><div id="grafiek"></div></div>
+
+  <h2>Jouw scores per cultuurtype</h2>
+  <p class="meta">
+    Op de zes onderwerpen heb je telkens 100 punten verdeeld. De cijfers
+    hieronder zijn de gemiddelden over die zes onderwerpen.
+  </p>
+  <table>
+    <thead>
+      <tr><th class="l">Cultuurtype</th><th>Nu</th><th>Gewenst</th><th>Verschil</th></tr>
+    </thead>
+    <tbody id="scores-body"></tbody>
+  </table>
+
+  <h2>Wat betekent dit?</h2>
+  <p>
+    Geen enkel cultuurtype is op zichzelf beter of slechter. De OCAI brengt
+    in beeld waar het zwaartepunt van je beleving ligt — en welke richting
+    je verkiest. De volledige uitleg van het model, de vier cultuurtypes en
+    de manier waarop je je uitslag kunt interpreteren lees je via onderstaande
+    link.
+  </p>
+
+  <div class="acties">
+    <a class="knop" href="../uitleg/">Wil je meer weten?</a>
+    <button class="knop lijn" type="button" onclick="window.print()">Afdrukken</button>
+    <a class="knop grijs" href="../">Nieuwe inzending</a>
+  </div>
+</div>
+
+</div>
+
+<script src="../assets/diagram-vlieger.js?v=3"></script>
+<script>
+'use strict';
+const CULTUUR_NAAM = { A:'Familie', B:'Adhocratie', C:'Markt', D:'Hiërarchie' };
+const ORG_KLEUR  = { 'Koraal':'#0F4C97', 'Via Jeugd':'#4FAE32' };
+const ORG_LABEL  = { 'Koraal':'K', 'Via Jeugd':'VJ' };
+
+function getRef() {
+  const u = new URL(location.href);
+  return u.searchParams.get('ref') || '';
+}
+
+function fmtDatum(iso) {
+  if (!iso) return '';
+  return String(iso).slice(0, 16).replace('T', ' om ') + ' uur';
+}
+
+function fmtVerschil(d) {
+  const r = Math.round(d * 10) / 10;
+  const cls = r > 0 ? 'delta-plus' : (r < 0 ? 'delta-min' : '');
+  const txt = (r > 0 ? '+' : '') + r;
+  return `<span class="${cls}">${txt}</span>`;
+}
+
+async function laad() {
+  const ref = getRef();
+  if (!ref) {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('leeg').style.display = '';
+    document.getElementById('leeg-msg').textContent = 'Geen referentie meegegeven in de URL.';
+    return;
+  }
+  const res = await fetch('/api/resultaat?ref=' + encodeURIComponent(ref));
+  if (!res.ok) {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('leeg').style.display = '';
+    document.getElementById('leeg-msg').textContent = 'Resultaat niet gevonden (referentie ' + ref + ').';
+    return;
+  }
+  const data = await res.json();
+  if (!data.ok || !data.item) {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('leeg').style.display = '';
+    document.getElementById('leeg-msg').textContent = data.fout || 'Resultaat niet gevonden.';
+    return;
+  }
+  render(data.item);
+}
+
+function render(item) {
+  const kleur = ORG_KLEUR[item.organisatie] || '#004289';
+
+  document.getElementById('meta').innerHTML =
+    `Inzending voor <strong>${item.organisatie}</strong>` +
+    (item.team ? ` — team <em>${escapeHtml(item.team)}</em>` : '') +
+    ` · ingestuurd ${fmtDatum(item.tijdstip)}<br>Referentie ${item.ref}`;
+
+  // Legenda-kleur (lijn ipv blokje, in vlieger-stijl)
+  document.getElementById('sw-nu').style.background = kleur;
+  document.getElementById('sw-gewenst').style.background =
+    `repeating-linear-gradient(90deg, transparent 0 5px, ${kleur} 5px 11px)`;
+
+  // Tabel
+  const n = item.profiel.nu, g = item.profiel.gewenst;
+  const tb = document.getElementById('scores-body');
+  tb.innerHTML = '';
+  for (const L of ['A','B','C','D']) {
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td class="l">${CULTUUR_NAAM[L]}</td><td>${n[L]}</td><td>${g[L]}</td><td>${fmtVerschil(g[L]-n[L])}</td></tr>`);
+  }
+
+  // Vlieger-diagram (variant B)
+  OcaiVlieger.render(document.getElementById('grafiek'), {
+    width: 880,
+    profielen: [{
+      naam: item.organisatie,
+      kleur: kleur,
+      nu: n,
+      gewenst: g,
+    }],
+  });
+
+  document.getElementById('inhoud').style.display = '';
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+laad();
+</script>
+</body>
+</html>

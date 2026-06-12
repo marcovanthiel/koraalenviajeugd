@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v=2">
+<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v=2" color="#00a7e7">
+<link rel="shortcut icon" href="/favicon/favicon.ico?v=2">
+<meta name="robots" content="noindex, nofollow">
+<title>Totaalresultaat · Beheer · Cultuurmeting Koraal &amp; Via Jeugd</title>
+<link rel="stylesheet" href="/assets/stijl.css?v=4">
+</head>
+<body>
+<div class="wrap breed">
+
+<div class="hero slank">
+  <div class="logos">
+    <span><img src="../../koraal_logo.png" alt="Koraal"></span>
+    <span><img src="../../vj_logo_ok.png" alt="Via Jeugd"></span>
+  </div>
+  <h1>Totaalresultaat</h1>
+  <p class="sub">Gemiddelde cultuurprofielen &middot; Koraal &amp; Via Jeugd.</p>
+</div>
+<p class="meta" id="meta">Even laden…</p>
+
+<div id="leeg" class="plot" style="display:none;">
+  <p class="fout" id="leeg-msg">Geen resultaten beschikbaar.</p>
+</div>
+
+<div id="inhoud" style="display:none;">
+  <div class="acties">
+    <a class="knop grijs" href="../">← Terug naar overzicht</a>
+  </div>
+
+  <p>
+    Hieronder zie je de gemiddelde positie per organisatie op één plaat.
+    De stip is het <em>zwaartepunt</em> van het gemiddelde nu-profiel
+    (Koraal donkerblauw, Via Jeugd groen). Voor leesbaarheid is de
+    afstand van het centrum 3,2× uitvergroot.
+  </p>
+
+  <section class="plot">
+    <h2>Totaalplaat — gemiddelde nu-positie per organisatie</h2>
+    <div class="legend">
+      <span class="item"><span class="sw" style="background:#0F4C97"></span>Koraal-gemiddelde</span>
+      <span class="item"><span class="sw" style="background:#4FAE32"></span>Via Jeugd-gemiddelde</span>
+    </div>
+    <div id="grafiek-totaal" style="max-width:700px; margin:0 auto;"></div>
+    <p class="voetnoot" style="font-size:.82em;color:#666;font-style:italic;margin:6px 2px 0;">
+      Stippen zijn 3,2× vergroot t.o.v. het werkelijke zwaartepunt — alleen
+      voor leesbaarheid. Geen gewenst-richtbeeld op de totaalplaat; zie de
+      cijfertabel hieronder voor de nu- én gewenst-gemiddelden.
+    </p>
+  </section>
+
+  <section class="plot" id="vlieger-details" style="margin-top:18px;">
+    <h2>Per organisatie — vlieger met nu en gewenst</h2>
+    <div class="duo">
+      <div>
+        <h3 id="t-koraal-h" style="color:#0F4C97;font-size:.95em;margin:0 0 4px;">Koraal</h3>
+        <div id="grafiek-koraal" style="max-width:460px; margin:0 auto;"></div>
+      </div>
+      <div>
+        <h3 id="t-vj-h" style="color:#4FAE32;font-size:.95em;margin:0 0 4px;">Via Jeugd</h3>
+        <div id="grafiek-vj" style="max-width:460px; margin:0 auto;"></div>
+      </div>
+    </div>
+  </section>
+
+  <h2>Gemiddelden in cijfers</h2>
+  <table>
+    <thead>
+      <tr><th class="l">Groep (n)</th><th colspan="4">Nu</th><th colspan="4">Gewenst</th></tr>
+      <tr><th class="l"></th>
+          <th>Familie</th><th>Adhocratie</th><th>Markt</th><th>Hiërarchie</th>
+          <th>Familie</th><th>Adhocratie</th><th>Markt</th><th>Hiërarchie</th></tr>
+    </thead>
+    <tbody id="agg-body"></tbody>
+  </table>
+</div>
+
+</div>
+
+<script src="../../assets/diagram-vlieger.js?v=3"></script>
+<script>
+'use strict';
+const STORAGE_KEY = 'ocai-admin-token';
+const KORAAL_KLEUR = '#0F4C97';
+const VJ_KLEUR     = '#4FAE32';
+
+function token() {
+  try { return sessionStorage.getItem(STORAGE_KEY) || ''; } catch(e) { return ''; }
+}
+
+async function laad() {
+  const t = token();
+  if (!t) {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('leeg').style.display = '';
+    document.getElementById('leeg-msg').innerHTML =
+      'Geen admin-token gevonden. Ga eerst naar <a href="../">de admin-pagina</a> en log daar in.';
+    return;
+  }
+  const res = await fetch('/api/resultaat?summary=1', {
+    headers: { 'Authorization': 'Bearer ' + t },
+  });
+  if (res.status === 401) {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('leeg').style.display = '';
+    document.getElementById('leeg-msg').innerHTML =
+      'Token niet (meer) geldig. Ga terug naar <a href="../">de admin-pagina</a> en log opnieuw in.';
+    return;
+  }
+  if (!res.ok) {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('leeg').style.display = '';
+    document.getElementById('leeg-msg').textContent = 'Server-fout: ' + res.status;
+    return;
+  }
+  const data = await res.json();
+  if (!data.ok) {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('leeg').style.display = '';
+    document.getElementById('leeg-msg').textContent = data.fout || 'Onbekende fout.';
+    return;
+  }
+  render(data);
+}
+
+function render(data) {
+  const k  = data.Koraal;
+  const vj = data['Via Jeugd'];
+
+  document.getElementById('meta').innerHTML =
+    `Op basis van <strong>${data.totaal.n}</strong> inzending(en) — ` +
+    `Koraal: ${k.n}, Via Jeugd: ${vj.n}.`;
+  document.getElementById('inhoud').style.display = '';
+  document.getElementById('t-koraal-h').textContent = `Koraal (n=${k.n})`;
+  document.getElementById('t-vj-h').textContent     = `Via Jeugd (n=${vj.n})`;
+
+  // Totaalplaat — stippen-versie (één plaat, twee stippen op
+  // uitvergroot zwaartepunt — conform CLAUDE.md).
+  const stippenProfielen = [];
+  if (k.n > 0)  stippenProfielen.push({ naam:'Koraal',    kleur: KORAAL_KLEUR, nu: k.nu });
+  if (vj.n > 0) stippenProfielen.push({ naam:'Via Jeugd', kleur: VJ_KLEUR,     nu: vj.nu });
+  if (stippenProfielen.length > 0) {
+    OcaiVlieger.renderTotaalStippen(document.getElementById('grafiek-totaal'), {
+      width: 880,
+      profielen: stippenProfielen,
+    });
+  } else {
+    document.getElementById('grafiek-totaal').innerHTML =
+      '<p class="geen">Nog geen inzendingen om te tonen.</p>';
+  }
+
+  // Per-organisatie vlieger met nu + gewenst
+  if (k.n > 0) {
+    OcaiVlieger.render(document.getElementById('grafiek-koraal'), {
+      width: 540,
+      profielen: [{ naam:'Koraal', kleur: KORAAL_KLEUR, nu: k.nu, gewenst: k.gewenst }],
+    });
+  } else {
+    document.getElementById('grafiek-koraal').innerHTML =
+      '<p class="geen">Nog geen inzendingen voor Koraal.</p>';
+  }
+  if (vj.n > 0) {
+    OcaiVlieger.render(document.getElementById('grafiek-vj'), {
+      width: 540,
+      profielen: [{ naam:'Via Jeugd', kleur: VJ_KLEUR, nu: vj.nu, gewenst: vj.gewenst }],
+    });
+  } else {
+    document.getElementById('grafiek-vj').innerHTML =
+      '<p class="geen">Nog geen inzendingen voor Via Jeugd.</p>';
+  }
+
+  // Aggregatie-tabel
+  const body = document.getElementById('agg-body');
+  body.innerHTML = '';
+  for (const grp of ['Koraal','Via Jeugd']) {
+    const a = data[grp];
+    if (!a.n) continue;
+    const n = a.nu, g = a.gewenst;
+    body.insertAdjacentHTML('beforeend',
+      `<tr><td class="l"><b>${grp}</b> (${a.n})</td>
+        <td>${n.A}</td><td>${n.B}</td><td>${n.C}</td><td>${n.D}</td>
+        <td>${g.A}</td><td>${g.B}</td><td>${g.C}</td><td>${g.D}</td></tr>`);
+  }
+}
+
+laad();
+</script>
+</body>
+</html>
