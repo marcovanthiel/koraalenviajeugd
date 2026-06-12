@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png?v=2">
+<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg?v=2" color="#00a7e7">
+<link rel="shortcut icon" href="/favicon/favicon.ico?v=2">
+<meta name="robots" content="noindex, nofollow">
+<title>Bezoekers-analytics · Beheer · Cultuurmeting Koraal &amp; Via Jeugd</title>
+<link rel="stylesheet" href="/assets/stijl.css?v=6">
+</head>
+<body>
+<div class="wrap breed">
+
+<div class="hero slank">
+  <div class="logos">
+    <span><img src="../../koraal_logo.png" alt="Koraal"></span>
+    <span><img src="../../vj_logo_ok.png" alt="Via Jeugd"></span>
+  </div>
+  <h1>Bezoekers-analytics</h1>
+  <p class="sub">Verkeer op koraalenviajeugd.nl &middot; anoniem, edge-side gelogd.</p>
+</div>
+<p class="meta" id="meta">Even laden…</p>
+
+<div id="leeg" class="kaart" style="display:none;">
+  <p class="fout" id="leeg-msg">Geen data beschikbaar.</p>
+  <p><a class="knop lijn" href="../">Terug naar de beheerpagina</a></p>
+</div>
+
+<div id="inhoud" style="display:none;">
+  <div class="acties">
+    <a class="knop grijs" href="../">← Terug naar overzicht</a>
+    <span style="display:inline-flex; align-items:center; gap:6px;">
+      <label for="periode" style="font-size:.92em;">Periode:</label>
+      <select id="periode">
+        <option value="7">7 dagen</option>
+        <option value="30" selected>30 dagen</option>
+        <option value="90">90 dagen</option>
+        <option value="365">1 jaar</option>
+      </select>
+    </span>
+  </div>
+
+  <div class="tellers" style="margin-top:14px;">
+    <div class="tel"><div class="n" id="n-uniek">0</div><small>unieke bezoekers</small></div>
+    <div class="tel"><div class="n" id="n-bezoeken">0</div><small>pageviews</small></div>
+    <div class="tel"><div class="n" id="n-landen">0</div><small>landen</small></div>
+  </div>
+
+  <h2>Pageviews per dag</h2>
+  <div class="kaart"><div id="grafiek-dag" style="overflow-x:auto;"></div></div>
+
+  <div class="duo" style="margin-top:18px;">
+    <div>
+      <h2>Meest bezochte pagina's</h2>
+      <table>
+        <thead><tr><th class="l">Pad</th><th>Views</th></tr></thead>
+        <tbody id="tb-paths"></tbody>
+      </table>
+    </div>
+    <div>
+      <h2>Land (unieke bezoekers)</h2>
+      <table>
+        <thead><tr><th class="l">Land</th><th>Uniek</th></tr></thead>
+        <tbody id="tb-landen"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="duo" style="margin-top:18px;">
+    <div>
+      <h2>Stad / regio (uniek)</h2>
+      <table>
+        <thead><tr><th class="l">Stad</th><th>Uniek</th></tr></thead>
+        <tbody id="tb-steden"></tbody>
+      </table>
+    </div>
+    <div>
+      <h2>Verwijzers (referrer-host)</h2>
+      <table>
+        <thead><tr><th class="l">Vandaan</th><th>Views</th></tr></thead>
+        <tbody id="tb-refs"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>Laatste 50 bezoeken</h2>
+  <table>
+    <thead><tr><th class="l">Tijdstip</th><th class="l">Pad</th><th class="l">Locatie</th><th class="l">Vandaan</th></tr></thead>
+    <tbody id="tb-laatste"></tbody>
+  </table>
+
+  <p class="meta" style="margin-top:12px;">
+    Privacy: er worden geen IP-adressen, namen of e-mailadressen opgeslagen.
+    Een bezoeker krijgt een dagelijkse anonieme hash (SHA-256 over IP + datum + admin-secret)
+    waardoor we binnen één dag dezelfde bezoeker herkennen, zonder die persoon te kunnen identificeren.
+    Bots en crawlers worden niet meegeteld.
+  </p>
+</div>
+
+</div>
+
+<script src="/assets/js/admin-analytics.js?v=1" defer></script>
+</body>
+</html>

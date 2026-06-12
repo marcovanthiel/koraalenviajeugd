@@ -3,7 +3,9 @@ import { handleResultaat } from './handlers/resultaat';
 import { handleAdminList } from './handlers/admin-list';
 import { handleAdminExport } from './handlers/admin-export';
 import { handleAdminDelete } from './handlers/admin-delete';
+import { handleAdminAnalytics } from './handlers/admin-analytics';
 import { withSecurityHeaders } from './security';
+import { logVisit } from './analytics';
 
 export interface RateLimit {
   limit(opts: { key: string }): Promise<{ success: boolean }>;
@@ -42,13 +44,17 @@ async function route(request: Request, env: Env): Promise<Response> {
   if (path === '/api/admin/delete' && method === 'DELETE') {
     return handleAdminDelete(request, env);
   }
+  if (path === '/api/admin/analytics' && method === 'GET') {
+    return handleAdminAnalytics(request, env);
+  }
 
   return env.ASSETS.fetch(request);
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const res = await route(request, env);
+    ctx.waitUntil(logVisit(request, res, env));
     return withSecurityHeaders(res);
   },
 } satisfies ExportedHandler<Env>;

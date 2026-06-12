@@ -189,6 +189,8 @@ svg text{font-family:var(--font);}
 .meta{color:var(--muted); font-size:.95em; margin:0 0 18px;}
 
 /* ---- admin-tellers ---- */
+.duo{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media (max-width:760px){ .duo{grid-template-columns:1fr;} }
 .tellers{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:6px 0 18px;}
 @media (max-width:560px){ .tellers{grid-template-columns:1fr;} }
 .tel{background:#fff; border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--sh-sm);
