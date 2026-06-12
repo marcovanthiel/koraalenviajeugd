@@ -12,6 +12,12 @@ export interface Env {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.hostname === 'www.koraalenviajeugd.nl') {
+      url.hostname = 'koraalenviajeugd.nl';
+      return Response.redirect(url.toString(), 301);
+    }
+
     const path = url.pathname;
     const method = request.method;
 
