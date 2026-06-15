@@ -1,6 +1,7 @@
 'use strict';
 const CULTUUR_NAAM = { A:'Familie', B:'Adhocratie', C:'Markt', D:'Hiërarchie' };
-const ORG_KLEUR  = { 'Koraal':'#0F4C97', 'Via Jeugd':'#4FAE32' };
+const ORG_KLEUR  = { 'Koraal':'#14387F', 'Via Jeugd':'#7DAF23' };
+const GEWENST_KLEUR = '#00A7E7'; // frisblauw — huisstijl: huidig=org-kleur, gewenst=frisblauw
 const ORG_LABEL  = { 'Koraal':'K', 'Via Jeugd':'VJ' };
 
 function getRef() {
@@ -46,7 +47,7 @@ async function laad() {
 }
 
 function render(item) {
-  const kleur = ORG_KLEUR[item.organisatie] || '#004289';
+  const kleur = ORG_KLEUR[item.organisatie] || '#14387F';
 
   document.getElementById('meta').innerHTML =
     `Inzending voor <strong>${item.organisatie}</strong>` +
@@ -55,7 +56,7 @@ function render(item) {
 
   document.getElementById('sw-nu').style.background = kleur;
   document.getElementById('sw-gewenst').style.background =
-    `repeating-linear-gradient(90deg, transparent 0 5px, ${kleur} 5px 11px)`;
+    `repeating-linear-gradient(90deg, transparent 0 5px, ${GEWENST_KLEUR} 5px 11px)`;
 
   const n = item.profiel.nu, g = item.profiel.gewenst;
   const tb = document.getElementById('scores-body');
@@ -70,6 +71,7 @@ function render(item) {
     profielen: [{
       naam: item.organisatie,
       kleur: kleur,
+      gewenstKleur: GEWENST_KLEUR,
       nu: n,
       gewenst: g,
     }],

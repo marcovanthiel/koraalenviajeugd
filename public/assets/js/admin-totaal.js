@@ -1,7 +1,7 @@
 'use strict';
 const STORAGE_KEY = 'ocai-admin-token';
-const KORAAL_KLEUR = '#0F4C97';
-const VJ_KLEUR     = '#4FAE32';
+const KORAAL_KLEUR = '#14387F';
+const VJ_KLEUR     = '#7DAF23';
 
 function token() {
   try { return sessionStorage.getItem(STORAGE_KEY) || ''; } catch(e) { return ''; }

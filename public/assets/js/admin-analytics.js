@@ -64,16 +64,16 @@ function bargrafiek(rijen) {
     const x = pad + i * barW;
     const hv = ((H - pad * 2) * r.bezoeken) / maxN;
     const hu = ((H - pad * 2) * r.uniek) / maxN;
-    svg += `<rect x="${x + 2}" y="${H - pad - hv}" width="${barW - 4}" height="${hv}" fill="#004289" rx="2"/>`;
-    svg += `<rect x="${x + 2}" y="${H - pad - hu}" width="${barW - 4}" height="${hu}" fill="#009DDF" opacity=".85" rx="2"/>`;
+    svg += `<rect x="${x + 2}" y="${H - pad - hv}" width="${barW - 4}" height="${hv}" fill="#14387F" rx="2"/>`;
+    svg += `<rect x="${x + 2}" y="${H - pad - hu}" width="${barW - 4}" height="${hu}" fill="#00A7E7" opacity=".85" rx="2"/>`;
     if (rijen.length <= 60 && i % Math.ceil(rijen.length / 15) === 0) {
       svg += `<text x="${x + barW / 2}" y="${H - pad + 14}" text-anchor="middle" font-size="10" fill="#666">${r.dag.slice(5)}</text>`;
     }
   });
   svg += `<g font-size="11">
-    <rect x="${W - 200}" y="6" width="12" height="12" fill="#004289" rx="2"/>
+    <rect x="${W - 200}" y="6" width="12" height="12" fill="#14387F" rx="2"/>
     <text x="${W - 184}" y="16" fill="#333">pageviews</text>
-    <rect x="${W - 110}" y="6" width="12" height="12" fill="#009DDF" opacity=".85" rx="2"/>
+    <rect x="${W - 110}" y="6" width="12" height="12" fill="#00A7E7" opacity=".85" rx="2"/>
     <text x="${W - 94}" y="16" fill="#333">uniek</text>
   </g>`;
   return svg + '</svg>';

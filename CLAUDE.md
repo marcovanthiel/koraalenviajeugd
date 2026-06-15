@@ -45,7 +45,7 @@ Routing zit in `src/index.ts`: pad-match → handler; anders `env.ASSETS.fetch(r
 - Achtergrond: 4 kwadrantpanelen met ondertitels (mensgericht/ondernemend/procedureel/resultaat) in pastel-blauwe gradient.
 - Buitenlabels FLEXIBEL/BEHEERSBAAR/INTERN GERICHT/EXTERN GERICHT.
 - "Nu" = doorgetrokken polygon (stroke 2.5, fill 0.13). "Gewenst" = gestippeld (dasharray 6 5, geen fill).
-- Kleuren: Koraal `#0F4C97` (donkerblauw), Via Jeugd `#4FAE32` (groen).
+- Kleuren (huisstijl Koraal-handboek): Koraal `#14387F` (diepzeeblauw), Via Jeugd `#7DAF23` (palmgroen). Op de individuele resultaatpagina: huidig = org-kleur, gewenst = frisblauw `#00A7E7` — via optionele `gewenstKleur` op een profiel (admin-multi-org-grafieken laten gewenst gestippeld in dezelfde kleur als nu).
 - Totaalplaat (`renderTotaalStippen`): één stip per organisatie op zwaartepunt van gemiddelde nu-profiel, factor 3,2× uitvergroot, geen tekstlabels, geen gewenst-lijn.
 - Renderer: `public/assets/diagram-vlieger.js` (`window.OcaiVlieger.render` + `renderTotaalStippen`).
 
@@ -53,8 +53,10 @@ Routing zit in `src/index.ts`: pad-match → handler; anders `env.ASSETS.fetch(r
 
 - Favicon-set in `public/favicon/` — officiële koraal.nl-favicon, mask-kleur `#00a7e7`.
 - Logo's in `public/`: `koraal_logo.png`, `vj_logo_ok.png`.
-- Centrale stylesheet `public/assets/stijl.css` (cache-bust `?v=N` in `<link>`).
-- CSS-variabelen: `--blauw:#004289 --cyaan:#009DDF --groen:#4FAE32 --zacht:#F2F8FD --kaart:#E5F1FA --rand:#C9DCEF`.
+- Centrale stylesheet `public/assets/stijl.css` (cache-bust `?v=N` in `<link>`; nu `?v=7`).
+- **Digitaal lettertype: Mulish** (Google Fonts — doorontwikkeling van het handboek-font Muli/FF Mark). Font-stack `'Mulish',Arial,Helvetica,sans-serif`; Google-Fonts-link in elke `<head>`.
+- CSS-variabelen (huisstijl Koraal-handboek, dec 2023): `--blauw:#14387F` (diepzeeblauw, PMS 280) `--dblauw:#0E2A5E` `--cyaan:#00A7E7` (frisblauw, PMS 2995) `--groen:#7DAF23` (palmgroen). Ondersteunend spaarzaam: zandgeel `#E1B900` (vlak `#FBF1CC`, tekst `#7A5C12`), zonnegloed-oranje `#EA5B25`, rotsgrijs `#769A99`, tropisch roze `#DD73A2`. Lichte kaart-/tabel-fills blijven (`--kaart:#E5F1FA --zacht:#F4FAFD`).
+- Schil 2 (professioneel): diepzee- en frisblauw dominant; groen/geel/oranje alléén als functioneel accent. Logo's links boven op witte panelen (hiërarchieniveau 1), met witruimte.
 
 ## Toon & taal
 
@@ -72,6 +74,7 @@ Routing zit in `src/index.ts`: pad-match → handler; anders `env.ASSETS.fetch(r
 
 - **Tot 12 juni 2026**: subpad `/koraalenviajeugd/` binnen `marcovanthiel/marcovanthiel-static` (Hugo-zustersite). Endpoints onder `/api/koraalenviajeugd/`.
 - **Vanaf 12 juni 2026**: standalone domein `koraalenviajeugd.nl` in eigen repo `marcovanthiel/koraalenviajeugd`, opgezet als Worker + Static Assets (Cloudflare heeft Pages-creation flow gepensioneerd voor nieuwe projecten). 4 Pages Functions → 1 Worker-entrypoint met simpele path-routing. Endpoints onder `/api/`. Zelfde D1-database (binding `OCAI_DB` → `ocai`) hergebruikt.
+- **15 juni 2026**: huisstijl gelijkgetrokken met Koraal-handboek (dec 2023, schil 2) — kleuren `#004289→#14387F` (diepzee), `#009DDF→#00A7E7` (frisblauw), `#4FAE32→#7DAF23` (palmgroen), gele accenten → zandgeel `#E1B900`; digitaal font **Mulish**; gewenst-lijn frisblauw op de resultaatpagina; meer logo-witruimte; cache-bust `?v=7`. Logo-positionering, Koraalkernen, QR en kernzin "Samen op eigen kracht" zijn bewust **niet** toegevoegd — die vragen eerst afstemming met Communicatie Koraal & Via Jeugd (schil 5).
 
 ## Gedeelde context (claude.ai ↔ Claude Code)
 

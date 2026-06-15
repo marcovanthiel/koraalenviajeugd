@@ -110,7 +110,9 @@
         svgEl('polygon', {
           points: asPolyPoints(pr.gewenst, cx, cy, R),
           fill: 'none',
-          stroke: pr.kleur, 'stroke-width': 2.5,
+          // gewenst krijgt een eigen kleur als die is meegegeven (huisstijl:
+          // huidig diepzeeblauw, gewenst frisblauw); anders dezelfde kleur als nu.
+          stroke: pr.gewenstKleur || pr.kleur, 'stroke-width': 2.5,
           'stroke-dasharray': '6 5',
         }, svg);
       }
@@ -127,7 +129,7 @@
           lx += 36 + (pr.naam.length + 5) * 6.8 + 14;
         }
         if (pr.gewenst) {
-          svgEl('line', { x1: lx, y1: ly, x2: lx + 26, y2: ly, stroke: pr.kleur, 'stroke-width': 2.5, 'stroke-dasharray': '6 5' }, svg);
+          svgEl('line', { x1: lx, y1: ly, x2: lx + 26, y2: ly, stroke: pr.gewenstKleur || pr.kleur, 'stroke-width': 2.5, 'stroke-dasharray': '6 5' }, svg);
           const t = svgEl('text', { x: lx + 32, y: ly + 4, 'font-size': 12, fill: '#333' }, svg);
           t.textContent = pr.naam + ' — gewenst';
           lx += 36 + (pr.naam.length + 11) * 6.8 + 14;

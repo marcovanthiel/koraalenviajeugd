@@ -3,14 +3,14 @@
    Gelinkt door alle pagina's via /assets/stijl.css
    ============================================================ */
 :root{
-  --blauw:#004289; --dblauw:#003366; --cyaan:#009DDF; --groen:#4FAE32;
+  --blauw:#14387F; --dblauw:#0E2A5E; --cyaan:#00A7E7; --groen:#7DAF23;
   --markt:#0A6FB8;
   --ink:#1f2a37; --muted:#5b6b7d;
   --line:#DCE7F1; --kaart:#E5F1FA; --zacht:#F4FAFD; --bg:#EEF5FB;
   --r:16px; --r-sm:11px;
   --sh-sm:0 1px 2px rgba(0,66,137,.06);
   --sh:0 2px 4px rgba(0,66,137,.05), 0 14px 32px -18px rgba(0,66,137,.30);
-  --font:'Avenir Next','Avenir Next LT Pro',Avenir,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --font:'Mulish',Arial,Helvetica,sans-serif;
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -37,10 +37,10 @@ a{color:var(--blauw);}
   color:#fff; padding:26px 28px 30px; overflow:hidden; box-shadow:var(--sh);}
 .hero::after{content:""; position:absolute; right:-60px; top:-60px; width:240px; height:240px;
   background:radial-gradient(circle, rgba(255,255,255,.16), transparent 70%); pointer-events:none;}
-.hero .logos{display:flex; gap:10px; margin-bottom:18px;}
-.hero .logos span{background:#fff; border-radius:10px; padding:8px 12px; display:inline-flex;
+.hero .logos{display:flex; gap:16px; margin-bottom:18px;}
+.hero .logos span{background:#fff; border-radius:10px; padding:11px 15px; display:inline-flex;
   box-shadow:0 4px 14px -6px rgba(0,0,0,.4);}
-.hero .logos img{height:30px; display:block;}
+.hero .logos img{height:34px; display:block;}
 .hero h1{margin:0; font-size:clamp(1.5em,4.6vw,2.05em); font-weight:700; letter-spacing:-.01em; color:#fff;}
 .hero p.sub{margin:8px 0 16px; opacity:.92; font-size:1.02em; max-width:52ch;}
 .hero .meta{display:flex; flex-wrap:wrap; gap:8px;}
@@ -153,7 +153,7 @@ input:focus{outline:none; border-color:var(--cyaan); box-shadow:0 0 0 3px rgba(0
 /* ---- verzendzone (vragenlijst) ---- */
 .verzend{margin-top:24px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;}
 .knop.groot{padding:15px 34px; font-size:1.06em;}
-.hint{font-size:.9em; color:#7a5d00; background:#FFF6DB; border:1px solid #F1E1A6; border-radius:10px;
+.hint{font-size:.9em; color:#7A5C12; background:#FBF1CC; border:1px solid #E1B900; border-radius:10px;
   padding:10px 14px; max-width:46ch; display:none;}
 
 /* ---- tabellen (generiek, gebruikt op resultaat/admin/totaal) ---- */
@@ -206,9 +206,9 @@ svg text{font-family:var(--font);}
 .lees-body .lede{color:var(--muted); font-size:1.1em; margin:4px 0 20px;}
 .lees-body blockquote{border-left:4px solid var(--cyaan); margin:18px 0; padding:8px 16px;
   background:var(--zacht); border-radius:0 10px 10px 0; color:#3a4856; font-style:italic;}
-.cta{background:linear-gradient(180deg,#FFF8E6,#FFEFC2); border:1.5px solid #EAC766;
+.cta{background:linear-gradient(180deg,#FBF1CC,#FBF1CC); border:1.5px solid #E1B900;
   border-radius:var(--r); padding:24px 26px; margin:34px 0 24px; box-shadow:var(--sh-sm);}
-.cta h2{color:#7A5A14; margin-top:0; font-size:1.3em;}
+.cta h2{color:#7A5C12; margin-top:0; font-size:1.3em;}
 .cta li{margin:10px 0; line-height:1.6;}
 .cta strong{color:#5A3F0E;}
 .cta .slogan{background:#fff; border-radius:10px; padding:14px 16px; margin:18px 0 0;
@@ -218,8 +218,8 @@ svg text{font-family:var(--font);}
   border:none; border-radius:10px; padding:9px 16px; font-size:.95em; font-weight:700; cursor:pointer; font-family:inherit;}
 .kopieer-knop:hover{background:var(--dblauw);}
 .kopieer-knop:disabled{background:var(--groen);}
-.kopieer-url{font-family:Menlo,Consolas,monospace; font-size:.85em; color:#444; background:#FFFBE7;
-  padding:6px 10px; border-radius:6px; border:1px solid #EAC766; word-break:break-all;}
+.kopieer-url{font-family:Menlo,Consolas,monospace; font-size:.85em; color:#444; background:#FBF1CC;
+  padding:6px 10px; border-radius:6px; border:1px solid #E1B900; word-break:break-all;}
 .terug{display:inline-block; color:var(--blauw); font-weight:700; text-decoration:none; margin-top:30px;}
 .terug:hover{text-decoration:underline;}
 

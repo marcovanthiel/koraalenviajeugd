@@ -34,7 +34,7 @@ const DIMS = [
 ];
 const LETTERS = ["A","B","C","D"];
 const TYPEN = {A:"Familie", B:"Adhocratie", C:"Markt", D:"Hiërarchie"};
-const TYPEKLEUR = {A:"#4FAE32", B:"#009DDF", C:"#0A6FB8", D:"#003366"};
+const TYPEKLEUR = {A:"#7DAF23", B:"#00A7E7", C:"#0A6FB8", D:"#0E2A5E"};
 let organisatie = null;
 
 function kiesOrg(o){
@@ -139,7 +139,7 @@ function vlieger(profielen, breed){
     s += `<polygon points="${pts}" fill="${pr.stippel?'none':pr.kleur}" fill-opacity="0.15"
           stroke="${pr.kleur}" stroke-width="3" ${pr.stippel?'stroke-dasharray="8 6"':''}/>`;
   }
-  const lab = (t,x,y,anch)=>`<text x="${x}" y="${y}" font-size="13" font-weight="bold" fill="#004289" text-anchor="${anch}">${t}</text>`;
+  const lab = (t,x,y,anch)=>`<text x="${x}" y="${y}" font-size="13" font-weight="bold" fill="#14387F" text-anchor="${anch}">${t}</text>`;
   s += lab('FAMILIE', 14, 18, 'start') + lab('ADHOCRATIE', W-14, 18, 'end');
   s += lab('HIËRARCHIE', 14, H-6, 'start') + lab('MARKT', W-14, H-6, 'end');
   let lx = 10;
@@ -188,10 +188,10 @@ async function verstuur(){
           <td>${p.nu[L]}</td><td>${p.gewenst[L]}</td><td>${d>0?'+':''}${d}</td></tr>`;
   }
   document.getElementById('restabel').innerHTML = t;
-  const kleur = organisatie==='Via Jeugd' ? '#4FAE32' : '#004289';
+  const kleur = organisatie==='Via Jeugd' ? '#7DAF23' : '#14387F';
   document.getElementById('grafiek').innerHTML = vlieger([
     {p:p.nu, kleur, naam:'Nu', stippel:false},
-    {p:p.gewenst, kleur:'#009DDF', naam:'Gewenst', stippel:true}
+    {p:p.gewenst, kleur:'#00A7E7', naam:'Gewenst', stippel:true}
   ], Math.min(420, document.getElementById('grafiek').clientWidth-30));
   const dn = dominant(p.nu), dg = dominant(p.gewenst);
   let duiding = `<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;">

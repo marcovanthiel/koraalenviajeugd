@@ -18,7 +18,7 @@ function vlieger(profielen, W){
     const pts = LETTERS.map(L=>pt(L,pr.p[L]).join(',')).join(' ');
     s += `<polygon points="${pts}" fill="none" stroke="${pr.kleur}" stroke-width="3" ${pr.stippel?'stroke-dasharray="8 6"':''}/>`;
   }
-  const lab=(t,x,y,a)=>`<text x="${x}" y="${y}" font-size="13" font-weight="bold" fill="#004289" text-anchor="${a}">${t}</text>`;
+  const lab=(t,x,y,a)=>`<text x="${x}" y="${y}" font-size="13" font-weight="bold" fill="#14387F" text-anchor="${a}">${t}</text>`;
   s += lab('FAMILIE',14,18,'start')+lab('ADHOCRATIE',W-14,18,'end');
   s += lab('HIËRARCHIE',14,H-6,'start')+lab('MARKT',W-14,H-6,'end');
   let lx=10, ly=H+22;
@@ -122,15 +122,15 @@ function render(data, token){
 
   const reeks = [];
   if (aggregates.Koraal.n) {
-    reeks.push({ p:aggregates.Koraal.nu,        kleur:'#004289', naam:'Koraal – nu', stippel:false });
-    reeks.push({ p:aggregates.Koraal.gewenst,   kleur:'#004289', naam:'Koraal – gewenst', stippel:true });
+    reeks.push({ p:aggregates.Koraal.nu,        kleur:'#14387F', naam:'Koraal – nu', stippel:false });
+    reeks.push({ p:aggregates.Koraal.gewenst,   kleur:'#14387F', naam:'Koraal – gewenst', stippel:true });
   }
   if (aggregates['Via Jeugd'].n) {
-    reeks.push({ p:aggregates['Via Jeugd'].nu,       kleur:'#4FAE32', naam:'Via Jeugd – nu', stippel:false });
-    reeks.push({ p:aggregates['Via Jeugd'].gewenst,  kleur:'#4FAE32', naam:'Via Jeugd – gewenst', stippel:true });
+    reeks.push({ p:aggregates['Via Jeugd'].nu,       kleur:'#7DAF23', naam:'Via Jeugd – nu', stippel:false });
+    reeks.push({ p:aggregates['Via Jeugd'].gewenst,  kleur:'#7DAF23', naam:'Via Jeugd – gewenst', stippel:true });
   }
   if (aggregates.totaal.n) {
-    reeks.push({ p:aggregates.totaal.gewenst, kleur:'#009DDF', naam:'Alle – gewenst', stippel:true });
+    reeks.push({ p:aggregates.totaal.gewenst, kleur:'#00A7E7', naam:'Alle – gewenst', stippel:true });
   }
   document.getElementById('grafiek').innerHTML = vlieger(reeks, 680);
 
