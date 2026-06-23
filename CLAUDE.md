@@ -8,7 +8,9 @@ Gedeelde bron-van-waarheid tussen claude.ai-chats en Claude Code-sessies voor de
 - Bestuurlijk samen sinds 1 juli 2025; juridisch één per 1 maart 2027.
 - Medewerkersbijeenkomst 23 juni 2026 — uitkomsten zijn daar gespreksstof.
 - Centrale boodschap: "snelheid mét borging" — het beste van Via Jeugd (familie/adhocratie) en Koraal (hiërarchie/borging), niet één cultuur laat winnen.
-- **Status 23-6-2026:** meting afgerond (uitkomsten op de bijeenkomst). De homepage (`public/index.html`) is vervangen door een **animatie-voorpagina** (schakelaar Samenvloeiing / Koraaltuin, volledig self-contained). De OCAI-vragenlijst die vóór 23-6 op de homepage stond, blijft in de git-historie (terughaalbaar); `/uitleg`, `/resultaat`, `/admin` en de `/api/*`-endpoints zijn ongewijzigd.
+- **Status 23-6-2026:** meting afgerond (uitkomsten op de bijeenkomst). De homepage (`public/index.html`) is vervangen door een **voorpagina met schakelaar** met 4 weergaven: **1 Samenvloeiing** + **2 Koraaltuin** (generatieve canvas-animaties) en **3 Foto's** + **4 Vragen** (slideshows van de kickoff-presentaties van 24-6). De OCAI-vragenlijst die vóór 23-6 op de homepage stond, blijft in de git-historie (terughaalbaar); `/uitleg`, `/resultaat`, `/admin` en de `/api/*`-endpoints zijn ongewijzigd.
+  - **Let op CSP:** `src/security.ts` zet `script-src 'self'` (géén `'unsafe-inline'`). Homepage-JS moet daarom een **extern bestand** zijn: `public/assets/home.js` (geladen via `<script src="/assets/home.js?v=N">`, bump `?v=` bij wijziging). Een inline `<script>` wordt door de browser geweigerd → animaties starten dan niet. `<style>` mag wél inline (`style-src 'unsafe-inline'`).
+  - **Presentaties:** slides staan als JPG in `public/presentaties/foto/01–44.jpg` en `public/presentaties/vragen/01–06.jpg`. Aantal slides staat in `home.js` (`PRES_FOTO.count` / `PRES_VRAGEN.count`). Pijplijn om ze te (her)maken uit een `.pptx`: `soffice --headless --convert-to pdf <file>` → `pdftoppm -jpeg -r 200 …` → hernoemen naar `NN.jpg` → `jpegoptim --strip-all`. (LibreOffice + poppler via Homebrew; PowerPoints AppleScript-PDF-export is een no-op in deze build.)
 
 ## Architectuur
 
