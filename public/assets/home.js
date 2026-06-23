@@ -156,7 +156,7 @@ function Variant1(root){
   function setIntensity(v){intensity=Math.max(0,Math.min(1.5,v));initSparks();showMeter();}
 
   return {
-    label:'1/2 = variant · ↑↓ = intensiteit · spatie = vonk · F = volledig scherm · C = tekst',
+    label:'1–4 = weergave · ↑↓ = intensiteit · spatie = vonk · F = volledig scherm · C = tekst',
     resize,
     start(){running=true;resize();raf=requestAnimationFrame(frame);},
     stop(){running=false;cancelAnimationFrame(raf);meter.style.opacity='0';},
@@ -176,18 +176,24 @@ function Variant2(root){
   const ctx=cv.getContext('2d',{alpha:false});
   const caption=makeCaption(root,'Samen groeien &middot; 1 maart 2027');
 
-  let W,H,DPR;
-  const PSTEPS=18,pal=[];
-  for(let i=0;i<=PSTEPS;i++){const t=i/PSTEPS,lift=t*38;
-    const r=Math.round(BLAUW[0]+(CYAAN[0]-BLAUW[0])*t+lift*0.10);
-    const g=Math.round(BLAUW[1]+(CYAAN[1]-BLAUW[1])*t+lift*0.55);
-    const b=Math.round(BLAUW[2]+(CYAAN[2]-BLAUW[2])*t+lift*0.30);
-    pal.push([Math.min(255,r),Math.min(255,g),Math.min(255,b)]);}
+  let W,H,DPR,floorY;
 
-  let SEG,ATTRACT,KILL,maxNodes,nAttr;
-  function tune(){SEG=Math.max(5,Math.round(Math.min(W,H)/120));ATTRACT=SEG*9;KILL=SEG*2.0;
-    const area=W*H;maxNodes=Math.max(1500,Math.min(5200,Math.round(area/300)));
-    nAttr=Math.max(900,Math.min(2200,Math.round(area/1100)));}
+  // warme koraal-paletten (op-merk: tropisch roze + zonnegloed-oranje), 3-stops
+  const PSTEPS=20;
+  function ramp(c0,c1,c2){const a=[];for(let i=0;i<=PSTEPS;i++){const t=i/PSTEPS;let r,g,b;
+    if(t<0.5){const u=t/0.5;r=c0[0]+(c1[0]-c0[0])*u;g=c0[1]+(c1[1]-c0[1])*u;b=c0[2]+(c1[2]-c0[2])*u;}
+    else{const u=(t-0.5)/0.5;r=c1[0]+(c2[0]-c1[0])*u;g=c1[1]+(c2[1]-c1[1])*u;b=c1[2]+(c2[2]-c1[2])*u;}
+    a.push([Math.round(r),Math.round(g),Math.round(b)]);}return a;}
+  // index 0 = dikke basis (diep), index PSTEPS = dunne tip (licht)
+  const PAL_PINK=ramp([150,46,74],[221,115,162],[250,214,206]);   // tropisch roze koraal
+  const PAL_WARM=ramp([165,55,42],[230,126,86],[250,221,186]);    // zonnegloed-oranje koraal
+  const CORE=[255,246,238], POLYP=[255,243,228];
+
+  let SEG,ATTRACT,KILL,maxNodes,nAttr,trunkW;
+  function tune(){SEG=Math.max(4,Math.round(Math.min(W,H)/175));ATTRACT=SEG*8;KILL=SEG*1.7;
+    const area=W*H;maxNodes=Math.max(1400,Math.min(4200,Math.round(area/360)));
+    nAttr=Math.max(1000,Math.min(2600,Math.round(area/820)));
+    trunkW=Math.max(10,Math.min(W,H)/42);}
 
   let nodes,sx,sy,nw,attr,grid,cell,frontier,phase,holdUntil,fadeStart,fadeAlpha,stallFrames,motes;
   function gkey(x,y){return((x/cell)|0)+'_'+((y/cell)|0);}
@@ -196,18 +202,20 @@ function Variant2(root){
     for(let X=gx-1;X<=gx+1;X++)for(let Y=gy-1;Y<=gy+1;Y++){const b=grid.get(X+'_'+Y);if(!b)continue;
       for(let j=0;j<b.length;j++){const idx=b[j],dx=nodes[idx].x-ax,dy=nodes[idx].y-ay,d=dx*dx+dy*dy;if(d<bd){bd=d;best=idx;}}}
     return best<0?null:{idx:best,d:Math.sqrt(bd)};}
-  function addNode(x,y,parent){const i=nodes.length;nodes.push({x,y,parent,flow:1,sw:Math.random()*TAU});gridInsert(i);
+  function addNode(x,y,parent,warm){const i=nodes.length;
+    nodes.push({x,y,parent,flow:1,sw:Math.random()*TAU,warm:parent>=0?nodes[parent].warm:warm});gridInsert(i);
     if(parent>=0){let a=parent;while(a>=0){nodes[a].flow++;a=nodes[a].parent;}}frontier.push(i);return i;}
 
   function resetReef(){tune();nodes=[];frontier=[];grid=new Map();cell=ATTRACT;fadeAlpha=1;phase='grow';stallFrames=0;
-    const BAND=0.20,floorY=H*(1-BAND);
-    const roots=5+(Math.random()*6|0);
-    for(let i=0;i<roots;i++){const x=W*(0.08+0.84*((i+Math.random()*0.6)/roots));addNode(x,floorY,-1);}
+    floorY=H*0.82;
+    const colonies=4+(Math.random()*4|0);
+    for(let i=0;i<colonies;i++){const x=W*(0.10+0.80*((i+0.5+(Math.random()-0.5)*0.5)/colonies));
+      addNode(x,floorY+H*0.02,-1,Math.random()<0.5);}
     const extra=2+(Math.random()*3|0);
-    for(let i=0;i<extra;i++)addNode(W*(0.1+0.8*Math.random()),floorY*(0.55+0.40*Math.random()),-1);
+    for(let i=0;i<extra;i++)addNode(W*(0.08+0.84*Math.random()),floorY-H*0.02*Math.random(),-1,Math.random()<0.5);
     attr={x:new Float32Array(nAttr),y:new Float32Array(nAttr),alive:new Uint8Array(nAttr)};
-    const yTop=H*0.06,ySpan=floorY-yTop;
-    for(let i=0;i<nAttr;i++){attr.x[i]=W*(0.04+0.92*Math.random());const r=Math.pow(Math.random(),0.78);attr.y[i]=yTop+ySpan*r;attr.alive[i]=1;}}
+    const yTop=H*0.12,ySpan=floorY-yTop;
+    for(let i=0;i<nAttr;i++){attr.x[i]=W*(0.05+0.90*Math.random());const r=Math.pow(Math.random(),0.9);attr.y[i]=yTop+ySpan*r;attr.alive[i]=1;}}
 
   function growStep(){if(nodes.length>=maxNodes)return false;const infl=new Map();let anyAlive=false;
     for(let i=0;i<nAttr;i++){if(!attr.alive[i])continue;anyAlive=true;const nr=nearest(attr.x[i],attr.y[i]);if(!nr)continue;
@@ -215,19 +223,34 @@ function Variant2(root){
       const dl=Math.hypot(dx,dy)||1;dx/=dl;dy/=dl;let e=infl.get(nr.idx);if(!e){e=[0,0,0];infl.set(nr.idx,e);}e[0]+=dx;e[1]+=dy;e[2]++;}
     if(infl.size===0)return anyAlive?null:false;
     frontier=[];
-    infl.forEach((e,idx)=>{if(nodes.length>=maxNodes)return;let dx=e[0],dy=e[1];dy-=0.55;dx+=(Math.random()-0.5)*0.35;
+    infl.forEach((e,idx)=>{if(nodes.length>=maxNodes)return;let dx=e[0],dy=e[1];dy-=0.42;dx+=(Math.random()-0.5)*0.55;
       const dl=Math.hypot(dx,dy)||1,n=nodes[idx];addNode(n.x+dx/dl*SEG,n.y+dy/dl*SEG,idx);});
     return true;}
 
-  function initMotes(){const n=REDUCED?40:Math.max(50,Math.min(150,Math.round(W*H/12000)));motes=[];
-    for(let i=0;i<n;i++)motes.push({x:Math.random()*W,y:Math.random()*H,vy:-(0.05+Math.random()*0.18),
-      ph:Math.random()*TAU,sz:0.6+Math.random()*1.6,sp:0.6+Math.random()*1.2});}
+  function initMotes(){const n=REDUCED?30:Math.max(40,Math.min(120,Math.round(W*H/16000)));motes=[];
+    for(let i=0;i<n;i++)motes.push({x:Math.random()*W,y:Math.random()*H,vy:-(0.04+Math.random()*0.14),
+      ph:Math.random()*TAU,sz:0.6+Math.random()*1.8,sp:0.5+Math.random()*1.1});}
 
   function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=window.innerWidth;H=window.innerHeight;
     cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);
     resetReef();initMotes();}
 
-  function paintBg(){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#F7F5F0');g.addColorStop(1,'#EEF3F5');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  function paintBg(){
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#F6FBFD');g.addColorStop(0.55,'#E4F1F4');g.addColorStop(1,'#D6E8EC');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // zachte lichtschachten van boven (zonlicht door water)
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    const ms=performance.now();
+    for(let i=0;i<4;i++){const x=W*(0.12+0.24*i)+Math.sin(ms*0.00007+i*1.7)*W*0.03;
+      const lg=ctx.createLinearGradient(x,0,x+W*0.06,H);
+      lg.addColorStop(0,'rgba(255,255,255,0.16)');lg.addColorStop(0.6,'rgba(222,240,248,0.05)');lg.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=lg;ctx.beginPath();ctx.moveTo(x-W*0.045,0);ctx.lineTo(x+W*0.045,0);ctx.lineTo(x+W*0.12,H);ctx.lineTo(x+W*0.02,H);ctx.closePath();ctx.fill();}
+    ctx.restore();
+    // zachte zandbodem
+    const sg=ctx.createLinearGradient(0,floorY-H*0.05,0,H);
+    sg.addColorStop(0,'rgba(232,221,196,0)');sg.addColorStop(1,'rgba(226,212,182,0.6)');
+    ctx.fillStyle=sg;ctx.fillRect(0,floorY-H*0.05,W,H-(floorY-H*0.05));}
 
   let raf=0,running=false;
   function frame(){
@@ -240,38 +263,40 @@ function Variant2(root){
     else if(phase==='hold'){if(ms>holdUntil){phase='fade';fadeStart=ms;}}
     else if(phase==='fade'){fadeAlpha=1-(ms-fadeStart)/(REDUCED?5000:6500);if(fadeAlpha<=0){resetReef();}}
     paintBg();
-    const amp=REDUCED?3:8,cur=Math.sin(t*0.25)*0.4,N=nodes.length;
-    if(!sx||sx.length<N){sx=new Float32Array(maxNodes+64);sy=new Float32Array(maxNodes+64);nw=new Float32Array(maxNodes+64);}
-    for(let i=0;i<N;i++){const n=nodes[i],hf=1-n.y/H;const s=(Math.sin(t*0.7+n.y*0.012+n.sw)+cur)*amp*hf;
-      sx[i]=n.x+s;sy[i]=n.y+Math.cos(t*0.5+n.sw)*amp*0.25*hf;nw[i]=Math.min(6.5,0.5+Math.sqrt(n.flow)*0.7);}
+    const N=nodes.length;
+    if(!sx||sx.length<maxNodes+64){sx=new Float32Array(maxNodes+64);sy=new Float32Array(maxNodes+64);nw=new Float32Array(maxNodes+64);}
+    const amp=REDUCED?2.5:7,cur=Math.sin(t*0.22)*0.5;
+    for(let i=0;i<N;i++){const n=nodes[i],hf=Math.max(0,(floorY-n.y)/(floorY*0.9));
+      const s=(Math.sin(t*0.6+n.y*0.010+n.sw)+cur)*amp*hf;
+      sx[i]=n.x+s;sy[i]=n.y+Math.cos(t*0.45+n.sw)*amp*0.22*hf;
+      nw[i]=Math.max(1.4,Math.min(trunkW,1.4+Math.pow(n.flow,0.46)*1.05));}
     ctx.lineCap='round';ctx.lineJoin='round';
-    for(let i=0;i<N;i++){const n=nodes[i],p=n.parent;if(p<0)continue;
-      const hb=Math.max(0,Math.min(1,1-n.y/H)),c=pal[(hb*PSTEPS)|0];
-      const a=fadeAlpha*(0.42+0.5*Math.min(1,nw[i]/2.2));
-      ctx.strokeStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';ctx.lineWidth=nw[i];
+    // 1) takken: dik bij de basis, taps naar de tip, warme koraalkleur
+    for(let i=0;i<N;i++){const n=nodes[i],p=n.parent;if(p<0)continue;const w=nw[i];
+      const tip=Math.max(0,Math.min(1,1-(w-1.4)/(trunkW-1.4)));     // 0=basis(diep) 1=tip(licht)
+      const pal=n.warm?PAL_WARM:PAL_PINK,c=pal[(tip*PSTEPS)|0];
+      ctx.strokeStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+(0.9*fadeAlpha)+')';ctx.lineWidth=w;
       ctx.beginPath();ctx.moveTo(sx[p],sy[p]);ctx.lineTo(sx[i],sy[i]);ctx.stroke();}
-    if(phase==='grow'&&frontier.length){ctx.save();
-      for(let k=0;k<frontier.length;k++){const i=frontier[k];if(i>=N)continue;
-        const pulse=0.55+0.45*Math.sin(ms*0.012+nodes[i].sw);
-        ctx.shadowColor='rgba(0,144,208,'+(0.8*pulse)+')';ctx.shadowBlur=9;
-        ctx.fillStyle='rgba(150,225,250,'+(0.85*pulse*fadeAlpha)+')';
-        ctx.beginPath();ctx.arc(sx[i],sy[i],1.7,0,TAU);ctx.fill();}ctx.restore();}
-    if(phase!=='grow'){const gl=0.5+0.5*Math.sin(t*0.5),cxg=W*0.5,cyg=H*0.55,rad=Math.min(W,H)*0.55;
-      const rg=ctx.createRadialGradient(cxg,cyg,0,cxg,cyg,rad);
-      rg.addColorStop(0,'rgba(0,144,208,'+(0.045*gl*fadeAlpha)+')');rg.addColorStop(1,'rgba(0,144,208,0)');
-      ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);}
-    ctx.save();
-    for(let i=0;i<motes.length;i++){const m=motes[i];m.y+=m.vy;m.x+=Math.sin(t*0.4*m.sp+m.ph)*0.12;
-      if(m.y<-6){m.y=H+6;m.x=Math.random()*W;}const a=(0.30+0.30*Math.sin(t*1.6*m.sp+m.ph));if(a<=0.03)continue;
-      ctx.shadowColor='rgba(0,144,208,'+(a*0.8)+')';ctx.shadowBlur=m.sz*5;ctx.fillStyle='rgba(0,144,208,'+(a*0.7)+')';
-      ctx.beginPath();ctx.arc(m.x,m.y,m.sz,0,TAU);ctx.fill();ctx.shadowBlur=0;
-      ctx.fillStyle='rgba(255,255,255,'+a+')';ctx.beginPath();ctx.arc(m.x,m.y,m.sz*0.4,0,TAU);ctx.fill();}
-    ctx.restore();
+    // 2) lichte kern op dikkere takken -> ronde, vlezige vorm
+    for(let i=0;i<N;i++){const n=nodes[i],p=n.parent;if(p<0)continue;const w=nw[i];if(w<5)continue;
+      ctx.strokeStyle='rgba('+CORE[0]+','+CORE[1]+','+CORE[2]+','+(0.18*fadeAlpha)+')';ctx.lineWidth=w*0.42;
+      ctx.beginPath();ctx.moveTo(sx[p],sy[p]);ctx.lineTo(sx[i],sy[i]);ctx.stroke();}
+    // 3) poliep-tips: zachte lichte knopjes op de uiteinden (geen vonken)
+    for(let i=0;i<N;i++){const n=nodes[i];if(n.flow!==1)continue;const w=nw[i];
+      ctx.fillStyle='rgba('+POLYP[0]+','+POLYP[1]+','+POLYP[2]+','+(0.55*fadeAlpha)+')';
+      ctx.beginPath();ctx.arc(sx[i],sy[i],Math.max(1.7,w*1.05),0,TAU);ctx.fill();}
+    // 4) zachte glinstering op groei-tips
+    if(phase==='grow'&&frontier.length){for(let k=0;k<frontier.length;k++){const i=frontier[k];if(i>=N)continue;
+      ctx.fillStyle='rgba(255,250,242,'+(0.5*fadeAlpha)+')';ctx.beginPath();ctx.arc(sx[i],sy[i],2.0,0,TAU);ctx.fill();}}
+    // 5) marine snow (zwevende deeltjes)
+    for(let i=0;i<motes.length;i++){const m=motes[i];m.y+=m.vy;m.x+=Math.sin(t*0.4*m.sp+m.ph)*0.10;
+      if(m.y<-6){m.y=H+6;m.x=Math.random()*W;}const a=(0.16+0.18*Math.sin(t*1.4*m.sp+m.ph));if(a<=0.02)continue;
+      ctx.fillStyle='rgba(255,255,255,'+a+')';ctx.beginPath();ctx.arc(m.x,m.y,m.sz,0,TAU);ctx.fill();}
     raf=requestAnimationFrame(frame);
   }
 
   return {
-    label:'1/2 = variant · spatie = nieuw rif · F = volledig scherm · C = tekst',
+    label:'1–4 = weergave · spatie = nieuw rif · F = volledig scherm · C = tekst',
     resize,
     start(){running=true;resize();raf=requestAnimationFrame(frame);},
     stop(){running=false;cancelAnimationFrame(raf);},
@@ -332,10 +357,8 @@ function Presentation(root, cfg){
       if(!running)return;
       const back=layers[front^1];
       back.src=u;
-      requestAnimationFrame(function(){
-        back.classList.add('is-on');
-        layers[front].classList.remove('is-on');
-      });
+      back.classList.add('is-on');               // nieuwe laag in beeld (fade-in)
+      layers[front].classList.remove('is-on');   // oude laag uit beeld (fade-out)
       front^=1;
     };
     ld.src=u;if(ld.complete)ld.onload();
@@ -350,7 +373,7 @@ function Presentation(root, cfg){
   return {
     label:'1–4 = weergave · klik / → = volgende dia · spatie = pauze · F = volledig scherm',
     resize(){},
-    start(){running=true;show(idx);setPlaying(true);},
+    start(){running=true;show(0);setPlaying(true);},   // elke keer bij dia 1 beginnen
     stop(){running=false;setPlaying(false);clearTimer();layers.forEach(l=>l.classList.remove('is-on'));},
     toggleCaption(){},
     click(){show(idx+1);},                    // klik op de dia = volgende
@@ -431,6 +454,17 @@ document.addEventListener('click',e=>{
 });
 
 window.addEventListener('resize',()=>{variants[activeId]?.mod.resize();});
+
+/* volledig scherm: knoppenbalk + cursor verschijnen bij muisbeweging, verdwijnen na rust */
+let _idleT=null;
+function wakeChrome(){
+  document.body.classList.remove('fs-idle');
+  clearTimeout(_idleT);
+  if(document.fullscreenElement) _idleT=setTimeout(()=>document.body.classList.add('fs-idle'),3000);
+}
+document.addEventListener('mousemove',wakeChrome,{passive:true});
+document.addEventListener('touchstart',wakeChrome,{passive:true});
+document.addEventListener('fullscreenchange',wakeChrome);
 
 /* start: onthouden keuze of standaard variant 1 */
 const _saved=lsGet('koraal-variant');

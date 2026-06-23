@@ -50,8 +50,13 @@
     display:flex;gap:4px;padding:5px;border-radius:999px;z-index:20;
     background:rgba(247,245,240,.72);backdrop-filter:blur(8px);
     box-shadow:0 4px 22px rgba(0,64,128,.12),inset 0 0 0 1px rgba(0,64,128,.10);
-    max-width:96vw;
+    max-width:96vw;transition:opacity .4s ease;
   }
+  /* in volledig scherm: balk + cursor verbergen na rust, terug bij muisbeweging */
+  body.fs-idle{cursor:none}
+  body.fs-idle #switch{opacity:0;pointer-events:none}
+  body.fs-idle .pres__bar{opacity:0 !important}
+  :fullscreen .pres__bar{opacity:1}
   #switch button{
     appearance:none;border:0;cursor:pointer;background:transparent;
     color:var(--blauw);font-family:inherit;font-weight:600;
@@ -129,6 +134,6 @@
 
   <div id="hint"></div>
 
-<script src="/assets/home.js?v=2"></script>
+<script src="/assets/home.js?v=3"></script>
 </body>
 </html>
