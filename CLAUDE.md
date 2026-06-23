@@ -8,6 +8,7 @@ Gedeelde bron-van-waarheid tussen claude.ai-chats en Claude Code-sessies voor de
 - Bestuurlijk samen sinds 1 juli 2025; juridisch één per 1 maart 2027.
 - Medewerkersbijeenkomst 23 juni 2026 — uitkomsten zijn daar gespreksstof.
 - Centrale boodschap: "snelheid mét borging" — het beste van Via Jeugd (familie/adhocratie) en Koraal (hiërarchie/borging), niet één cultuur laat winnen.
+- **Status 23-6-2026:** meting afgerond (uitkomsten op de bijeenkomst). De homepage (`public/index.html`) is vervangen door een **animatie-voorpagina** (schakelaar Samenvloeiing / Koraaltuin, volledig self-contained). De OCAI-vragenlijst die vóór 23-6 op de homepage stond, blijft in de git-historie (terughaalbaar); `/uitleg`, `/resultaat`, `/admin` en de `/api/*`-endpoints zijn ongewijzigd.
 
 ## Architectuur
 
