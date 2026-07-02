@@ -62,8 +62,7 @@ function gemiddeld(rs: Item[], ronde: 'nu' | 'gewenst'): LetterScore | null {
 function getToken(request: Request): string | null {
   const auth = request.headers.get('authorization');
   if (auth?.toLowerCase().startsWith('bearer ')) return auth.slice(7).trim();
-  const url = new URL(request.url);
-  return url.searchParams.get('token');
+  return null; // query-param-token verwijderd (lekt via logs/Referer); alleen Authorization: Bearer
 }
 
 export async function handleResultaat(request: Request, env: Env): Promise<Response> {
@@ -107,6 +106,14 @@ export async function handleResultaat(request: Request, env: Env): Promise<Respo
     const ref = url.searchParams.get('ref');
     if (!ref || !/^O-[0-9A-F]{4,16}$/.test(ref)) {
       return json({ ok: false, fout: 'Geen geldige referentie.' }, 400);
+    }
+    // Rate-limit tegen ref-enumeratie (refs zijn maar 4–16 hex): per edge-IP.
+    if (env.OPSLAAN_RL) {
+      const ip = request.headers.get('cf-connecting-ip') ?? '0.0.0.0';
+      const rl = await env.OPSLAAN_RL.limit({ key: 'res:' + ip });
+      if (!rl.success) {
+        return json({ ok: false, fout: 'Te veel verzoeken — probeer over een minuut opnieuw.' }, 429);
+      }
     }
     const result = await env.OCAI_DB.prepare(
       `SELECT ref, organisatie, team,

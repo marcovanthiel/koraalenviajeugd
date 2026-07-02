@@ -11,12 +11,16 @@ export function tokenEquals(a: string, b: string): boolean {
 const CSP =
   "default-src 'self'; " +
   "img-src 'self' data:; " +
-  "style-src 'self' 'unsafe-inline'; " +
+  // Google Fonts (huisstijlfont Mulish): stylesheet + fontbestanden expliciet toestaan,
+  // anders blokkeert de CSP de font en valt de site terug op Arial.
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+  "font-src 'self' https://fonts.gstatic.com; " +
   "script-src 'self'; " +
   "connect-src 'self'; " +
   "frame-ancestors 'none'; " +
   "base-uri 'self'; " +
-  "form-action 'self'";
+  "form-action 'self'; " +
+  "object-src 'none'";
 
 export function withSecurityHeaders(res: Response): Response {
   const h = new Headers(res.headers);

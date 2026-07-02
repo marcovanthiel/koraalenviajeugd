@@ -25,8 +25,7 @@ function json(body: Record<string, unknown>, status = 200): Response {
 function getToken(request: Request): string | null {
   const auth = request.headers.get('authorization');
   if (auth?.toLowerCase().startsWith('bearer ')) return auth.slice(7).trim();
-  const url = new URL(request.url);
-  return url.searchParams.get('token');
+  return null; // query-param-token verwijderd (lekt via logs/Referer); alleen Authorization: Bearer
 }
 
 export async function handleAdminAnalytics(request: Request, env: Env): Promise<Response> {

@@ -312,7 +312,7 @@ function Variant2(root){
 function Presentation(root, cfg){
   const pad=n=>(n<10?'0':'')+n;
   const norm=i=>((i%cfg.count)+cfg.count)%cfg.count;
-  const url=i=>cfg.dir+pad(norm(i)+1)+'.jpg';
+  const url=i=>cfg.dir+pad(norm(i)+1)+'.webp';
 
   // twee gestapelde lagen voor een zachte cross-fade
   const layers=[el('img','pres__img'),el('img','pres__img')];
