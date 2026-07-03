@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "deploy": "node -e \"const cp=require('child_process');const v=require('./package.json').version;let c='';try{c=cp.execSync('git rev-parse --short HEAD').toString().trim()}catch(e){}require('fs').writeFileSync('public/version.json',JSON.stringify({version:v,commit:c,date:new Date().toISOString()}))\" && npx --yes wrangler deploy",
+    "deploy": "node -e \"const cp=require('child_process');let N=0;try{N=parseInt(cp.execSync('git rev-list --count HEAD').toString().trim())||0}catch(e){}let c='';try{c=cp.execSync('git rev-parse --short HEAD').toString().trim()}catch(e){}const v='1.'+Math.floor(N/10)+'.'+(N%10);require('fs').writeFileSync('public/version.json',JSON.stringify({version:v,commit:c,date:new Date().toISOString()}))\" && npx --yes wrangler deploy",
     "dev": "wrangler dev"
   },
   "devDependencies": {
