@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy",
+    "deploy": "node -e \"const cp=require('child_process');const v=require('./package.json').version;let c='';try{c=cp.execSync('git rev-parse --short HEAD').toString().trim()}catch(e){}require('fs').writeFileSync('public/version.json',JSON.stringify({version:v,commit:c,date:new Date().toISOString()}))\" && wrangler deploy",
     "dev": "wrangler dev"
   },
   "devDependencies": {
