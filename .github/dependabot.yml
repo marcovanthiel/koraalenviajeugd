@@ -21,3 +21,6 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+    ignore:
+      - dependency-name: '@cloudflare/workers-types'
+        update-types: ['version-update:semver-major']
